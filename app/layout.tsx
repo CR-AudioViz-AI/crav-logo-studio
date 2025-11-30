@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,6 +24,11 @@ export default function RootLayout({
       <body className={inter.className}>
         {children}
         <Toaster />
+        {/* Javari AI Assistant - Embedded across all CR AudioViz AI apps */}
+        <Script 
+          src="https://javariai.com/embed.js" 
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
