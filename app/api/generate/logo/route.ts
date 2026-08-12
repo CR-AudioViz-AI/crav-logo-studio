@@ -1,72 +1,112 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
-import { chargeCreditsOrThrow, getCreditPrices } from '@/lib/wallet-server';
+// app/api/generate/logo/route.ts — real logo generation through the core
+//
+// 2026-08-12: this route used to charge credits against a `wallets` table that
+// does not exist on the Supabase project, and then return PLACEHOLDER logos
+// behind a `// TODO: Replace with actual AI generation when ready`. So it never
+// generated anything, and its charge silently failed. javarilogo.com has never
+// produced a real logo.
+//
+// Generation and billing both happen on craudiovizai.com now: one model
+// cascade, one cost law, one atomic ledger. If generation fails after the
+// charge lands, the credits are refunded rather than quietly kept.
+//
+// CR AudioViz AI · EIN 39-3646201 · August 2026
+import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabase/server";
+import {
+  CentralCredits,
+  CentralImages,
+  CentralCrm,
+  CentralServiceError,
+  InsufficientCreditsError,
+} from "@/lib/central-services";
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+/** Credits per logo concept. The core is authoritative; this is the request. */
+const CREDITS_PER_CONCEPT = 5;
+const MAX_CONCEPTS = 4;
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  let charged = 0;
+  let accessToken: string | null = null;
+
   try {
-    const { prompt, style, count = 4 } = await req.json();
+    const body = (await req.json()) as {
+      prompt?: unknown; style?: unknown; count?: unknown;
+    };
 
+    const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     if (!prompt) {
-      return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
+      return NextResponse.json({ error: "Prompt required" }, { status: 400 });
     }
+    const style = typeof body.style === "string" ? body.style.trim() : "";
+    const requested = Number(body.count ?? 4);
+    const count = Number.isFinite(requested)
+      ? Math.min(Math.max(Math.trunc(requested), 1), MAX_CONCEPTS)
+      : 4;
 
+    // The session is the only thing that decides who this is. No email
+    // argument, no x-user-email header, no local admin list.
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user || !session.access_token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    accessToken = session.access_token;
 
-    // Get credit cost from settings
-    const prices = await getCreditPrices();
-    const creditCost = prices['logo.concept'] || 5;
+    const cost = CREDITS_PER_CONCEPT * count;
+    await CentralCredits.spend(accessToken, cost, "logo.concept", {
+      prompt, style, count,
+    });
+    charged = cost;
 
-    // Charge credits before generation
-    try {
-      await chargeCreditsOrThrow(
-        user.id,
-        creditCost,
-        'AI logo generation',
-        { prompt, style, count }
+    const fullPrompt = style
+      ? `${prompt}. Logo design, ${style} style. Clean vector mark, flat, ` +
+        `high contrast, centred on a plain background, no text.`
+      : `${prompt}. Logo design. Clean vector mark, flat, high contrast, ` +
+        `centred on a plain background, no text.`;
+
+    const images = await CentralImages.generate(accessToken, fullPrompt, { count });
+
+    void CentralCrm.record(accessToken, "logo.generated", { count, style });
+
+    return NextResponse.json({
+      logos: images.map((img, i) => ({
+        id: `logo-${Date.now()}-${i}`,
+        url: img.url,
+        prompt: img.revisedPrompt ?? fullPrompt,
+      })),
+      creditsCharged: cost,
+    });
+  } catch (error) {
+    if (error instanceof InsufficientCreditsError) {
+      return NextResponse.json(
+        { error: "Insufficient credits", code: "insufficient_credits" },
+        { status: 402 },
       );
-    } catch (error: any) {
-      if (error.message === 'INSUFFICIENT_CREDITS') {
-        return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 });
-      }
-      throw error;
     }
 
-    // Generate placeholder logos
-    // TODO: Replace with actual AI generation when ready
-    const logos = Array.from({ length: count }, (_, i) => ({
-      id: `logo-${Date.now()}-${i}`,
-      svg: generatePlaceholderSVG(prompt, i),
-      preview: `data:image/svg+xml,${encodeURIComponent(generatePlaceholderSVG(prompt, i))}`,
-    }));
+    // Generation failed after the customer paid. Give it back.
+    if (charged > 0 && accessToken) {
+      try {
+        await CentralCredits.refund(accessToken, charged, "logo generation failed");
+      } catch {
+        // Refund failure must be visible, not swallowed into a 500 that looks
+        // like a plain generation error.
+        return NextResponse.json(
+          { error: "Generation failed and the refund did not go through. " +
+                   "Support has the details.", code: "refund_failed" },
+          { status: 500 },
+        );
+      }
+    }
 
-    return NextResponse.json({ logos });
-  } catch (error: any) {
-    console.error('Logo generation error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error instanceof CentralServiceError) {
+      return NextResponse.json({ error: error.message, code: error.code },
+        { status: error.status >= 500 ? 502 : error.status });
+    }
+    return NextResponse.json({ error: "Logo generation failed" }, { status: 500 });
   }
-}
-
-function generatePlaceholderSVG(prompt: string, index: number): string {
-  const colors = [
-    { bg: '#3B82F6', text: '#FFFFFF' },
-    { bg: '#10B981', text: '#FFFFFF' },
-    { bg: '#F59E0B', text: '#FFFFFF' },
-    { bg: '#EF4444', text: '#FFFFFF' },
-  ];
-
-  const color = colors[index % colors.length];
-  const initial = prompt.charAt(0).toUpperCase();
-
-  return `<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
-    <rect width="400" height="400" fill="${color.bg}"/>
-    <text x="200" y="250" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="${color.text}" text-anchor="middle">${initial}</text>
-  </svg>`;
 }

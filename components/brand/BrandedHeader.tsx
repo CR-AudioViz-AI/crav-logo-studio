@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthButtons } from './AuthButtons';
 import { CreditsBar } from './CreditsBar';
-import { CentralServices } from '@/lib/central-services';
+import { CentralCredits } from '@/lib/central-services';
+import { supabase } from '@/lib/supabase/client';
 
 interface BrandedHeaderProps {
   appName: string;
@@ -36,20 +37,18 @@ export function BrandedHeader({ appName, appLogo, quickLinks = [] }: BrandedHead
 
   const checkAuthStatus = async () => {
     try {
-      const session = await CentralServices.Auth.getSession();
-      if (session.success && session.data?.user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user && session.access_token) {
         setIsLoggedIn(true);
         setUser({
-          name: session.data.user.user_metadata?.full_name,
-          email: session.data.user.email,
+          name: session.user.user_metadata?.full_name as string | undefined,
+          email: session.user.email,
         });
-        
-        // Fetch credits
-        const creditsResult = await CentralServices.Credits.getBalance();
-        if (creditsResult.success) {
-          setCredits(creditsResult.data?.balance || 0);
-          setPlan(creditsResult.data?.plan || 'free');
-        }
+
+        // The core owns the ledger, so the balance comes from there.
+        const bal = await CentralCredits.getBalance(session.access_token);
+        setCredits(bal.balance);
+        setPlan((bal.plan as 'free' | 'pro' | 'business') ?? 'free');
       }
     } catch (error) {
       console.error('Auth check error:', error);

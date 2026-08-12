@@ -1,127 +1,123 @@
-'use client';
+// app/pricing/page.tsx — prices read live from the core catalogue
+//
+// 2026-08-12: this page imported PLANS and CREDIT_PACKS from lib/wallet.ts,
+// which hardcoded a "Starter $12/mo — 300 credits" tier and 200/500/1000
+// credit packs. None of those are things CR AudioViz AI sells. It was
+// advertising invented prices on a public page.
+//
+// craudiovizai.com/api/pricing reads Supabase `tiers` and `credit_packs`, which
+// are the source of truth. Checkout happens on the core so there is one Stripe
+// account and one place a price can change.
+//
+// CR AudioViz AI · EIN 39-3646201 · August 2026
+"use client";
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Check, Sparkles } from 'lucide-react';
-import { PLANS, CREDIT_PACKS } from '@/lib/wallet';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  CentralPayments,
+  tierPriceLabel,
+  packPriceLabel,
+  type Pricing,
+} from "@/lib/central-services";
 
 export default function PricingPage() {
+  const [pricing, setPricing] = useState<Pricing | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    CentralPayments.getPricing()
+      .then((p) => { if (!cancelled) setPricing(p); })
+      .catch((e: unknown) => {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Could not load pricing");
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-blue-600" />
-            <span className="text-xl font-bold">CRAV Logo Studio</span>
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/sign-in">
-              <Button variant="ghost" size="sm">Sign In</Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button size="sm">Get Started</Button>
-            </Link>
-          </nav>
-        </div>
+    <main className="mx-auto max-w-5xl px-6 py-16">
+      <header className="mb-12 text-center">
+        <h1 className="text-3xl font-bold tracking-tight">Javari Logo pricing</h1>
+        <p className="mt-3 text-slate-600">
+          One account across every CR AudioViz AI app. Credits you buy here work
+          everywhere.
+        </p>
       </header>
 
-      <main className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h1>
-          <p className="text-xl text-slate-600">
-            Choose the plan that fits your needs. Upgrade or downgrade anytime.
-          </p>
-        </div>
+      {error && (
+        <p role="alert" className="mb-8 rounded border border-red-200 bg-red-50 p-4 text-red-800">
+          Pricing is temporarily unavailable. {error}
+        </p>
+      )}
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {Object.values(PLANS).map((plan) => (
-            <Card key={plan.id} className={plan.id === 'PRO' ? 'border-blue-600 shadow-lg relative' : ''}>
-              {plan.id === 'PRO' && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>
-              )}
-              <CardHeader>
-                <CardTitle>{plan.name}</CardTitle>
-                <CardDescription>
-                  <span className="text-3xl font-bold text-slate-900">{plan.priceDisplay}</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-600 mt-0.5" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Link href="/sign-up" className="w-full">
-                  <Button className="w-full" variant={plan.id === 'PRO' ? 'default' : 'outline'}>
-                    {plan.id === 'FREE' ? 'Get Started' : 'Subscribe'}
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+      {!pricing && !error && (
+        <p className="text-center text-slate-500">Loading pricing…</p>
+      )}
 
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">Credit Top-Up Packs</h2>
-          <p className="text-center text-slate-600 mb-8">
-            Need more credits? Purchase additional credit packs anytime.
-          </p>
-          <div className="grid md:grid-cols-3 gap-6">
-            {CREDIT_PACKS.map((pack) => (
-              <Card key={pack.id}>
-                <CardHeader>
-                  <CardTitle>{pack.credits} Credits</CardTitle>
-                  <CardDescription>
-                    <span className="text-2xl font-bold text-slate-900">{pack.priceDisplay}</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button className="w-full" variant="outline">
-                    Purchase
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
+      {pricing && (
+        <>
+          <section aria-labelledby="plans-heading" className="mb-16">
+            <h2 id="plans-heading" className="mb-6 text-xl font-semibold">Plans</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {pricing.tiers.map((t) => (
+                <div key={t.id} className="rounded-lg border border-slate-200 p-6">
+                  <h3 className="text-lg font-semibold">{t.name}</h3>
+                  <p className="mt-1 text-2xl font-bold">{tierPriceLabel(t)}</p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    {t.monthly_credits
+                      ? `${t.monthly_credits.toLocaleString()} credits a month`
+                      : t.signup_bonus
+                        ? `${t.signup_bonus} credits to start`
+                        : "Contact us"}
+                  </p>
+                  {t.seat_limit > 1 && (
+                    <p className="mt-1 text-sm text-slate-600">
+                      Up to {t.seat_limit} seats
+                    </p>
+                  )}
+                  <a
+                    href={CentralPayments.checkoutUrl(t.id)}
+                    className="mt-5 inline-block rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    {t.price_monthly_usd === 0 ? "Get started" : `Choose ${t.name}`}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
 
-        <div className="mt-16 bg-slate-100 rounded-lg p-8">
-          <h3 className="text-2xl font-bold mb-4 text-center">Credit Usage Guide</h3>
-          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <div className="flex justify-between">
-              <span className="text-slate-700">AI Logo Generation</span>
-              <span className="font-semibold">5 credits</span>
+          <section aria-labelledby="packs-heading">
+            <h2 id="packs-heading" className="mb-2 text-xl font-semibold">Credit packs</h2>
+            <p className="mb-6 text-sm text-slate-600">
+              Top up any time. Packs never expire while your account is active.
+            </p>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {pricing.packs.map((p) => (
+                <div key={p.id} className="rounded-lg border border-slate-200 p-6">
+                  <h3 className="text-lg font-semibold">
+                    {p.credits.toLocaleString()} credits
+                  </h3>
+                  <p className="mt-1 text-2xl font-bold">{packPriceLabel(p)}</p>
+                  <p className="mt-2 text-sm text-slate-600">{p.name}</p>
+                  <a
+                    href={CentralPayments.checkoutUrl(p.id)}
+                    className="mt-5 inline-block rounded border border-slate-300 px-4 py-2 text-sm font-semibold"
+                  >
+                    Buy pack
+                  </a>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-700">AI Re-style</span>
-              <span className="font-semibold">2 credits</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-700">Vectorize Image</span>
-              <span className="font-semibold">3 credits</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-700">Mockup Set</span>
-              <span className="font-semibold">1 credit</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-700">Brand Kit PDF</span>
-              <span className="font-semibold">5 credits</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-700">Animation Export</span>
-              <span className="font-semibold">5 credits</span>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+          </section>
+        </>
+      )}
+
+      <p className="mt-16 text-center text-sm text-slate-500">
+        Questions? <Link href="/" className="underline">Back to Javari Logo</Link>
+      </p>
+    </main>
   );
 }

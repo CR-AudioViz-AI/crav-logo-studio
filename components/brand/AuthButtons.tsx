@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { CentralServices } from '@/lib/central-services';
+import { supabase } from '@/lib/supabase/client';
 
 interface AuthButtonsProps {
   isLoggedIn: boolean;
@@ -25,7 +25,7 @@ interface AuthButtonsProps {
 export function AuthButtons({ isLoggedIn, userName, userEmail, onLogout }: AuthButtonsProps) {
   const handleLogout = async () => {
     try {
-      await CentralServices.Auth.signOut();
+      await supabase.auth.signOut();
       if (onLogout) {
         onLogout();
       } else {

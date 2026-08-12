@@ -1,5 +1,6 @@
 import { supabase } from './supabase/client';
 import { User } from './types';
+import { CENTRAL_API_BASE, APP_ID } from './central-services';
 
 export async function signUp(email: string, password: string, name?: string) {
   const { data, error } = await supabase.auth.signUp({
@@ -14,22 +15,23 @@ export async function signUp(email: string, password: string, name?: string) {
 
   if (error) throw error;
 
-  if (data.user) {
-    const response = await fetch('/api/auth/setup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId: data.user.id,
-        email: data.user.email,
-        name: name || null,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to setup user account');
+  // Provisioning is the core's job. /api/auth/seed-credits is idempotent and
+  // seeds the signup credits against the canonical ledger. This app used to
+  // call a local /api/auth/setup that wrote to `users`, `wallets` and
+  // `ledger_entries` — two of which do not exist — so every signup threw.
+  if (data.session?.access_token) {
+    try {
+      await fetch(`${CENTRAL_API_BASE}/auth/seed-credits`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Id': APP_ID,
+          Authorization: `Bearer ${data.session.access_token}`,
+        },
+      });
+    } catch {
+      // Seeding is not worth failing a signup over; the core is idempotent and
+      // will seed on the next authenticated call.
     }
   }
 

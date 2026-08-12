@@ -16,7 +16,22 @@ import { Badge } from '@/components/ui/badge';
 import { Sparkles, FolderKanban, CreditCard, Settings, User, LogOut, Coins } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { getCurrentUser, onAuthStateChange, signOut } from '@/lib/auth';
-import { getBalance } from '@/lib/wallet';
+// Balance comes from the core ledger, not a local `wallets` table that never
+// existed on this project.
+import { CentralCredits } from '@/lib/central-services';
+import { supabase } from '@/lib/supabase/client';
+
+async function fetchBalance(): Promise<number> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) return 0;
+  try {
+    const { balance } = await CentralCredits.getBalance(session.access_token);
+    return balance;
+  } catch {
+    // A balance we cannot read is shown as zero rather than crashing the shell.
+    return 0;
+  }
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, balance, setUser, setBalance } = useAppStore();
@@ -28,7 +43,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       const currentUser = await getCurrentUser();
       if (currentUser) {
         setUser(currentUser);
-        const userBalance = await getBalance(currentUser.id);
+        const userBalance = await fetchBalance();
         setBalance(userBalance);
       } else {
         router.push('/sign-in');
@@ -40,7 +55,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = onAuthStateChange((newUser) => {
       if (newUser) {
         setUser(newUser);
-        getBalance(newUser.id).then(setBalance);
+        void fetchBalance().then(setBalance);
       } else {
         setUser(null);
         setBalance(0);

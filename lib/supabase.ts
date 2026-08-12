@@ -14,11 +14,22 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Re-export admin utilities from central services
-export { isAdmin, shouldChargeCredits, ADMIN_EMAILS, CentralServices } from './central-services';
+// 2026-08-12: isAdmin / shouldChargeCredits / ADMIN_EMAILS are gone. Admin
+// identity is decided server-side by the core against the authenticated
+// session, never by a list kept in an app that also decides who pays.
+export { CentralServices } from './central-services';
 
 // Centralized Supabase configuration
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://kteobfyferrukqeolofj.supabase.co';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZW9iZnlmZXJydWtxZW9sb2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxOTcyNjYsImV4cCI6MjA3NzU1NzI2Nn0.uy-jlF_z6qVb8qogsNyGDLHqT4HhmdRhLrW7zPv3qhY';
+// No fallbacks. A hardcoded project URL means a misconfigured deploy writes to
+// production without anyone noticing.
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const _missingUrl = !SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+if (_missingUrl || !SUPABASE_ANON_KEY) {
+  throw new Error(
+    'NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set',
+  );
+}
 
 // Standard client for general use
 export const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
