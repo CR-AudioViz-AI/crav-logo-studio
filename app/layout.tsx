@@ -14,19 +14,19 @@ const TITLE = 'Javari Logo';
 const DESCRIPTION =
   'Logos and the brand around them — names, taglines, colour palettes, font ' +
   'pairing, guidelines and the mark itself, in one place.';
-const URL = 'https://javarilogo.com';
+const SITE_URL = 'https://javarilogo.com';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(URL),
+  metadataBase: new URL(SITE_URL),
   title: { default: TITLE, template: `%s — ${TITLE}` },
   description: DESCRIPTION,
-  alternates: { canonical: URL },
+  alternates: { canonical: SITE_URL },
   openGraph: {
     title: `${TITLE} — CR AudioViz AI`,
     description: DESCRIPTION,
-    url: URL,
+    url: SITE_URL,
     siteName: 'CR AudioViz AI',
     type: 'website',
   },
