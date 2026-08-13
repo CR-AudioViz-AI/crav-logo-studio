@@ -110,6 +110,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               >
                 Templates
               </Link>
+              <Link
+                href="/brand"
+                className={`text-sm font-medium ${
+                  pathname === '/brand' ? 'text-blue-600' : 'text-slate-600 hover:text-blue-600'
+                } transition-colors`}
+              >
+                Brand toolkit
+              </Link>
             </nav>
           </div>
 

@@ -289,6 +289,41 @@ export const CentralImages = {
   },
 };
 
+
+// ─── TEXT GENERATION ─────────────────────────────────────────────────────────
+// The brand toolkit (names, taglines, palette, fonts, briefs, guidelines,
+// favicons, mission) is text generation. The core's /api/chat owns the model
+// cascade AND bills the message, so this app must not charge separately for it
+// — doing so would take the customer's credits twice for one operation.
+
+export const CentralChat = {
+  async complete(
+    accessToken: string,
+    prompt: string,
+    system?: string,
+  ): Promise<string> {
+    const d = await call<{ reply?: string; message?: string; content?: string }>(
+      "/chat",
+      {
+        method: "POST",
+        accessToken,
+        body: {
+          messages: [
+            ...(system ? [{ role: "system", content: system }] : []),
+            { role: "user", content: prompt },
+          ],
+          appId: APP_ID,
+          stream: false,
+        },
+        timeoutMs: 120_000,
+      },
+    );
+    const text = d.reply ?? d.message ?? d.content ?? "";
+    if (!text) throw new CentralServiceError("Empty response", 502, "empty_result");
+    return text;
+  },
+};
+
 export const CentralServices = {
   auth: CentralAuth,
   credits: CentralCredits,
@@ -296,6 +331,7 @@ export const CentralServices = {
   support: CentralSupport,
   crm: CentralCrm,
   images: CentralImages,
+  chat: CentralChat,
   domain: CENTRAL_DOMAIN,
   apiBase: CENTRAL_API_BASE,
   appId: APP_ID,
