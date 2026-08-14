@@ -30,7 +30,7 @@ const EXPORT_TARGETS: ExportTarget[] = [
     name: 'Website Builder',
     icon: <Globe className="w-5 h-5" />,
     color: 'from-blue-500 to-cyan-500',
-    url: 'https://crav-website-builder.vercel.app',
+    url: 'https://craudiovizai.com/apps/builder',
     actions: [
       { id: 'header-logo', label: 'Add to Header', description: 'Use as website header logo', available: true },
       { id: 'favicon', label: 'Set as Favicon', description: 'Use as browser favicon', available: true },
@@ -42,7 +42,7 @@ const EXPORT_TARGETS: ExportTarget[] = [
     name: 'Social Graphics',
     icon: <Image className="w-5 h-5" />,
     color: 'from-pink-500 to-rose-500',
-    url: 'https://crav-social-graphics.vercel.app',
+    url: 'https://craudiovizai.com/apps/social-graphics',
     actions: [
       { id: 'brand-post', label: 'Create Branded Post', description: 'New post with your branding', available: true },
       { id: 'watermark', label: 'Set as Watermark', description: 'Add to all graphics', available: true },
@@ -54,7 +54,7 @@ const EXPORT_TARGETS: ExportTarget[] = [
     name: 'Invoice Generator',
     icon: <FileText className="w-5 h-5" />,
     color: 'from-emerald-500 to-green-500',
-    url: 'https://crav-invoice-generator.vercel.app',
+    url: 'https://craudiovizai.com/apps/invoice-generator',
     actions: [
       { id: 'invoice-logo', label: 'Add to Invoices', description: 'Use as invoice header logo', available: true },
       { id: 'brand-colors', label: 'Apply Brand Colors', description: 'Style invoices with brand', available: true },
@@ -65,7 +65,7 @@ const EXPORT_TARGETS: ExportTarget[] = [
     name: 'QR Generator',
     icon: <QrCode className="w-5 h-5" />,
     color: 'from-gray-600 to-gray-700',
-    url: 'https://crav-qr-generator.vercel.app',
+    url: 'https://craudiovizai.com/apps/qr-generator',
     actions: [
       { id: 'branded-qr', label: 'Create Branded QR', description: 'QR code with your logo', available: true },
       { id: 'website-qr', label: 'QR for Website', description: 'Link to your website', available: true },

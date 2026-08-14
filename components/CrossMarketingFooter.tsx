@@ -19,15 +19,15 @@ interface AppLink {
 }
 
 const ECOSYSTEM_APPS: AppLink[] = [
-  { id: 'logo-studio', name: 'Logo Studio', description: 'AI logo creation', icon: <Palette className="w-4 h-4" />, url: 'https://crav-logo-studio.vercel.app', color: 'from-violet-500 to-purple-500', category: 'creative', featured: true },
-  { id: 'website-builder', name: 'Website Builder', description: 'Create websites', icon: <Globe className="w-4 h-4" />, url: 'https://crav-website.vercel.app', color: 'from-blue-500 to-cyan-500', category: 'creative', featured: true },
-  { id: 'social-graphics', name: 'Social Graphics', description: 'Design social content', icon: <Image className="w-4 h-4" />, url: 'https://crav-social-graphics.vercel.app', color: 'from-pink-500 to-rose-500', category: 'creative', featured: true },
-  { id: 'invoice-generator', name: 'Invoice Generator', description: 'Professional invoices', icon: <FileText className="w-4 h-4" />, url: 'https://crav-invoice-generator.vercel.app', color: 'from-emerald-500 to-green-500', category: 'business' },
-  { id: 'market-oracle', name: 'Market Oracle', description: 'AI stock predictions', icon: <BarChart3 className="w-4 h-4" />, url: 'https://crav-market-oracle.vercel.app', color: 'from-amber-500 to-orange-500', category: 'business' },
-  { id: 'qr-generator', name: 'QR Generator', description: 'Dynamic QR codes', icon: <QrCode className="w-4 h-4" />, url: 'https://crav-qr-generator.vercel.app', color: 'from-gray-600 to-gray-700', category: 'business' },
-  { id: 'cravbarrels', name: 'CravBarrels', description: 'Discover spirits', icon: <Wine className="w-4 h-4" />, url: 'https://cravbarrels.vercel.app', color: 'from-amber-600 to-yellow-600', category: 'lifestyle' },
+  { id: 'logo-studio', name: 'Logo Studio', description: 'AI logo creation', icon: <Palette className="w-4 h-4" />, url: 'https://javarilogo.com/brand', color: 'from-violet-500 to-purple-500', category: 'creative', featured: true },
+  { id: 'website-builder', name: 'Website Builder', description: 'Create websites', icon: <Globe className="w-4 h-4" />, url: 'https://javari-website.vercel.app', color: 'from-blue-500 to-cyan-500', category: 'creative', featured: true },
+  { id: 'social-graphics', name: 'Social Graphics', description: 'Design social content', icon: <Image className="w-4 h-4" />, url: 'https://craudiovizai.com/apps/social-graphics', color: 'from-pink-500 to-rose-500', category: 'creative', featured: true },
+  { id: 'invoice-generator', name: 'Invoice Generator', description: 'Professional invoices', icon: <FileText className="w-4 h-4" />, url: 'https://craudiovizai.com/apps/invoice-generator', color: 'from-emerald-500 to-green-500', category: 'business' },
+  { id: 'market-oracle', name: 'Market Oracle', description: 'AI stock predictions', icon: <BarChart3 className="w-4 h-4" />, url: 'https://craudiovizai.com/apps/market-oracle', color: 'from-amber-500 to-orange-500', category: 'business' },
+  { id: 'qr-generator', name: 'QR Generator', description: 'Dynamic QR codes', icon: <QrCode className="w-4 h-4" />, url: 'https://craudiovizai.com/apps/qr-generator', color: 'from-gray-600 to-gray-700', category: 'business' },
+  { id: 'javarispirits', name: 'Javari Spirits', description: 'Discover spirits', icon: <Wine className="w-4 h-4" />, url: 'https://javarispirits.vercel.app', color: 'from-amber-600 to-yellow-600', category: 'lifestyle' },
   { id: 'orlando-deals', name: 'Orlando Trip Deals', description: 'Best vacation deals', icon: <Plane className="w-4 h-4" />, url: 'https://orlando-trip-deals.vercel.app', color: 'from-sky-500 to-blue-500', category: 'lifestyle' },
-  { id: 'cravcards', name: 'CravCards', description: 'Card collecting', icon: <Layers className="w-4 h-4" />, url: 'https://cravcards.vercel.app', color: 'from-indigo-500 to-purple-500', category: 'lifestyle' },
+  { id: 'javaricards', name: 'Javari Cards', description: 'Card collecting', icon: <Layers className="w-4 h-4" />, url: 'https://javaricards.vercel.app', color: 'from-indigo-500 to-purple-500', category: 'lifestyle' },
 ]
 
 interface CrossMarketingFooterProps {

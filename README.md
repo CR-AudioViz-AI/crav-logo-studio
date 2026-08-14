@@ -1,4 +1,4 @@
-# crav-logo-studio
+# javari-logo-studio
 
 CR AudioViz AI Platform
 

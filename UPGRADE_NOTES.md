@@ -1,4 +1,4 @@
-# CRAV Logo Studio - Upgrade Notes
+# javari Logo Studio - Upgrade Notes
 
 ## What Was Added
 

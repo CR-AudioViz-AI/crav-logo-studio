@@ -24,7 +24,7 @@ export default function SignUpPage() {
 
     try {
       await signUp(email, password, name);
-      toast.success('Account created! Welcome to CRAV Logo Studio.');
+      toast.success('Account created! Welcome to javari Logo Studio.');
       router.push('/projects');
     } catch (error: any) {
       toast.error(error.message || 'Failed to create account');
@@ -38,7 +38,7 @@ export default function SignUpPage() {
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 justify-center mb-8">
           <Sparkles className="h-6 w-6 text-blue-600" />
-          <span className="text-xl font-bold">CRAV Logo Studio</span>
+          <span className="text-xl font-bold">javari Logo Studio</span>
         </Link>
 
         <Card>

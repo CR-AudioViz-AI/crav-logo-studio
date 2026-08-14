@@ -1,6 +1,6 @@
-# Deployment Guide - CRAV Logo Studio
+# Deployment Guide - javari Logo Studio
 
-This guide will walk you through deploying CRAV Logo Studio to production.
+This guide will walk you through deploying javari Logo Studio to production.
 
 ## Prerequisites Checklist
 
@@ -16,20 +16,20 @@ This guide will walk you through deploying CRAV Logo Studio to production.
 ```bash
 git init
 git add -A
-git commit -m "Initial commit: CRAV Logo Studio"
+git commit -m "Initial commit: javari Logo Studio"
 ```
 
 ### 1.2 Create GitHub Repository
 
 1. Go to [github.com](https://github.com/new)
-2. Create a new repository named `crav-logo-studio`
+2. Create a new repository named `javari-logo-studio`
 3. Don't initialize with README (we already have one)
 
 ### 1.3 Push to GitHub
 
 ```bash
 git branch -M main
-git remote add origin git@github.com:YOUR_USERNAME/crav-logo-studio.git
+git remote add origin git@github.com:YOUR_USERNAME/javari-logo-studio.git
 git push -u origin main
 ```
 
@@ -301,4 +301,4 @@ Before going live:
 
 ---
 
-**Congratulations!** Your CRAV Logo Studio is now deployed and ready for users.
+**Congratulations!** Your javari Logo Studio is now deployed and ready for users.

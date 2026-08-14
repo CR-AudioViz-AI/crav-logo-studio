@@ -91,7 +91,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-8">
             <Link href="/projects" className="flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-blue-600" />
-              <span className="text-xl font-bold">CRAV Logo Studio</span>
+              <span className="text-xl font-bold">javari Logo Studio</span>
             </Link>
             <nav className="hidden md:flex items-center gap-6">
               <Link

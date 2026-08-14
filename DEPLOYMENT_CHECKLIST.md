@@ -1,4 +1,4 @@
-# 🚀 CRAV Logo Studio - Deployment Checklist
+# 🚀 javari Logo Studio - Deployment Checklist
 
 Use this checklist to ensure a smooth deployment to production.
 
@@ -72,9 +72,9 @@ Use this checklist to ensure a smooth deployment to production.
 ```bash
 git init
 git add -A
-git commit -m "feat: CRAV Logo Studio production ready"
+git commit -m "feat: javari Logo Studio production ready"
 git branch -M main
-git remote add origin git@github.com:YOUR_ORG/crav-logo-studio.git
+git remote add origin git@github.com:YOUR_ORG/javari-logo-studio.git
 git push -u origin main
 ```
 - [ ] Repository created

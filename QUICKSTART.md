@@ -1,4 +1,4 @@
-# CRAV Logo Studio - Quick Start Guide
+# javari Logo Studio - Quick Start Guide
 
 Get your Logo Studio up and running in minutes!
 

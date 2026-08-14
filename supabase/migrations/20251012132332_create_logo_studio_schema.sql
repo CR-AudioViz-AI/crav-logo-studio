@@ -1,5 +1,5 @@
 /*
-  # CRAV Logo Studio Database Schema
+  # javari Logo Studio Database Schema
 
   1. New Tables
     - `users`
