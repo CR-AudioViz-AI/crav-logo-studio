@@ -12,8 +12,23 @@
 //
 // CR AudioViz AI · EIN 39-3646201 · August 2026
 import { NextRequest, NextResponse } from "next/server";
+
+import { requireUser } from "@/lib/api/require-user";
 import { createServerClient } from "@/lib/supabase/server";
 import {
+
+// Service-role client. Identity comes from requireUser above; this only
+// reads and writes data.
+import { createClient as _mkClient } from '@supabase/supabase-js';
+function createSupabaseServiceClient() {
+  return _mkClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false },
+      global: { fetch: (u: RequestInfo | URL, o?: RequestInit) => fetch(u, { ...o, cache: 'no-store' }) } },
+  );
+}
+
   CentralCredits,
   CentralImages,
   CentralCrm,
@@ -49,8 +64,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // The session is the only thing that decides who this is. No email
     // argument, no x-user-email header, no local admin list.
-    const supabase = await createServerClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const supabase = await createSupabaseServiceClient();
+        // 2026-08-19: read the session from COOKIES via @supabase/auth-helpers or
+    // @supabase/ssr. Sessions live in localStorage on this platform and nothing
+    // writes a Supabase auth cookie, so this found no user and answered 401 to
+    // EVERYONE - signed in or not. It never errored; it took the unauthenticated
+    // path and looked like it worked. Same bug that broke 32 core routes.
+    const _auth = await requireUser(req);
+    if (!_auth.ok) return _auth.res;
+    const user = { id: _auth.userId, email: _auth.email };
     if (!session?.user || !session.access_token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
