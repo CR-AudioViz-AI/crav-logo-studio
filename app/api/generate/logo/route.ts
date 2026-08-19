@@ -17,6 +17,13 @@ import { requireUser } from "@/lib/api/require-user";
 import { createServerClient } from "@/lib/supabase/server";
 import {
 
+  CentralCredits,
+  CentralImages,
+  CentralCrm,
+  CentralServiceError,
+  InsufficientCreditsError,
+} from "@/lib/central-services";
+
 // Service-role client. Identity comes from requireUser above; this only
 // reads and writes data.
 import { createClient as _mkClient } from '@supabase/supabase-js';
@@ -29,12 +36,6 @@ function createSupabaseServiceClient() {
   );
 }
 
-  CentralCredits,
-  CentralImages,
-  CentralCrm,
-  CentralServiceError,
-  InsufficientCreditsError,
-} from "@/lib/central-services";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
