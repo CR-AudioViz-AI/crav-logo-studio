@@ -14,7 +14,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { requireUser } from "@/lib/api/require-user";
-import { createServerClient } from "@/lib/supabase/server";
 import {
 
   CentralCredits,
