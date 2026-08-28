@@ -12,6 +12,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { secretKey, publishableKey, supabaseUrl } from "@craudioviz/platform-sdk";
 
 // Re-export admin utilities from central services
 // 2026-08-12: isAdmin / shouldChargeCredits / ADMIN_EMAILS are gone. Admin
@@ -22,9 +23,9 @@ export { CentralServices } from './central-services';
 // Centralized Supabase configuration
 // No fallbacks. A hardcoded project URL means a misconfigured deploy writes to
 // production without anyone noticing.
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_URL = supabaseUrl();
 const _missingUrl = !SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_ANON_KEY = publishableKey();
 if (_missingUrl || !SUPABASE_ANON_KEY) {
   throw new Error(
     'NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set',
@@ -58,7 +59,7 @@ export function createSupabaseBrowserClient(): SupabaseClient {
 
 // Server client for API routes
 export function createSupabaseServerClient(): SupabaseClient {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey = secretKey();
   if (!serviceKey) {
     console.warn('SUPABASE_SERVICE_ROLE_KEY not set, using anon key');
     return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
