@@ -6,10 +6,11 @@ import { optimize } from 'svgo';
 // Service-role client. Identity comes from requireUser above; this only
 // reads and writes data.
 import { createClient as _mkClient } from '@supabase/supabase-js';
+import { secretKey, supabaseUrl } from "@craudioviz/platform-sdk";
 function createSupabaseServiceClient() {
   return _mkClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl(),
+    secretKey(),
     { auth: { persistSession: false },
       global: { fetch: (u: RequestInfo | URL, o?: RequestInit) => fetch(u, { ...o, cache: 'no-store' }) } },
   );
