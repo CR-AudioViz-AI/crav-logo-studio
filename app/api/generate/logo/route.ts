@@ -74,10 +74,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const _auth = await requireUser(req);
     if (!_auth.ok) return _auth.res;
     const user = { id: _auth.userId, email: _auth.email };
-    if (!session?.user || !session.access_token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // 2026-09-01: the `session` checks below this line were LEFT BEHIND by the
+    // migration to requireUser. `session` was deleted and three references to it
+    // were not — Cannot find name 'session', three times.
+    //
+    // requireUser verifies the caller and returns userId and email; it does not
+    // return a token, because it does not need one. But CentralCredits.spend and
+    // CentralImages.generate both take the CALLER'S bearer token so the central
+    // service can attribute the spend to a real user rather than trusting this app.
+    //
+    // So the token comes from the Authorization header, which is where requireUser
+    // just verified it. Reading it again here is not a second trust decision: the
+    // request has already been authenticated, and this is the same string.
+    accessToken = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: "Unauthorized", reason: "no bearer token" },
+        { status: 401 },
+      );
     }
-    accessToken = session.access_token;
 
     const cost = CREDITS_PER_CONCEPT * count;
     await CentralCredits.spend(accessToken, cost, "logo.concept", {
