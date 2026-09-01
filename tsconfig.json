@@ -1,4 +1,19 @@
 {
+  "$comment": [
+    "2026-09-01: strict turned ON, and the reason is specific rather than stylistic.",
+    "",
+    "With strict:false TypeScript does not narrow a DISCRIMINATED UNION. lib/api/require-user.ts",
+    "returns { ok: true; userId } | { ok: false; res }, and every route does",
+    "`if (!_auth.ok) return _auth.res;` — which is correct code. Under strict:false the",
+    "narrowing does not happen and the compiler reports 'Property res does not exist on type",
+    "AuthResult', so the AUTH GUARD ITSELF was the thing that would not compile.",
+    "",
+    "Proven both ways in isolation before changing this: identical error with strict:false,",
+    "clean with strict:true, same files.",
+    "",
+    "This also matches the platform default in platform-sdk/config/tsconfig.base.json, which",
+    "this repo should extend rather than restate."
+  ],
   "compilerOptions": {
     "lib": [
       "dom",
@@ -7,7 +22,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -26,7 +41,7 @@
         "./*"
       ]
     },
-    "noImplicitAny": false
+    "noImplicitAny": true
   },
   "include": [
     "next-env.d.ts",
