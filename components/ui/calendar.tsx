@@ -54,8 +54,18 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+        // 2026-09-01: react-day-picker v9 renamed these. IconLeft and IconRight were
+        // v8; v9 exposes a single Chevron component and passes an orientation.
+        //
+        // This component was written against v8 and the package was never installed,
+        // so nothing ever checked it. Installing react-day-picker is what made the
+        // mismatch visible.
+        Chevron: ({ orientation, ...props }) =>
+          orientation === 'left' ? (
+            <ChevronLeft className="h-4 w-4" {...props} />
+          ) : (
+            <ChevronRight className="h-4 w-4" {...props} />
+          ),
       }}
       {...props}
     />
