@@ -1,3 +1,12 @@
+// 2026-09-03: these footer links were LOCAL paths that only exist on core.
+// An ecosystem sweep found /contact, /support, /privacy and /terms 404ing on
+// every satellite that renders this footer. They are central pages - one
+// privacy policy, one contact form - so the links are absolute.
+//
+// This file is a FORK of the SDK component. Fixing the SDK does not reach it,
+// which is why the same defect had to be fixed twice.
+//
+// /api and /integrations are removed: they 404 on core too.
 'use client';
 
 import React from 'react';
@@ -35,19 +44,17 @@ export function BrandedFooter({
     { label: 'Blog', href: '/blog' },
   ],
   productLinks = [
-    { label: 'Features', href: '/features' },
-    { label: 'API', href: '/api' },
-    { label: 'Integrations', href: '/integrations' },
+    { label: 'Features', href: 'https://craudiovizai.com/features' },
   ],
   supportLinks = [
-    { label: 'Help Center', href: '/support' },
-    { label: 'Contact', href: '/contact' },
-    { label: 'Status', href: '/status' },
+    { label: 'Help Center', href: 'https://craudiovizai.com/support' },
+    { label: 'Contact', href: 'https://craudiovizai.com/contact' },
+    { label: 'Status', href: 'https://craudiovizai.com/status' },
   ],
   legalLinks = [
-    { label: 'Privacy', href: '/privacy' },
-    { label: 'Terms', href: '/terms' },
-    { label: 'Cookies', href: '/cookies' },
+    { label: 'Privacy', href: 'https://craudiovizai.com/privacy' },
+    { label: 'Terms', href: 'https://craudiovizai.com/terms' },
+    { label: 'Cookies', href: 'https://craudiovizai.com/cookies' },
   ],
 }: BrandedFooterProps) {
   const currentYear = new Date().getFullYear();
