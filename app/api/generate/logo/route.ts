@@ -143,7 +143,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     if (error instanceof CentralServiceError) {
-      return NextResponse.json({ error: error.message, code: error.code },
+      return NextResponse.json({ error: 'The request could not be completed.', code: 'INTERNAL_ERROR', code: error.code },
         { status: error.status >= 500 ? 502 : error.status });
     }
     return NextResponse.json({ error: "Logo generation failed" }, { status: 500 });
