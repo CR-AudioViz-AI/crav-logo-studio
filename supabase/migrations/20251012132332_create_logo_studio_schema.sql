@@ -106,14 +106,11 @@
 */
 
 -- Create users table
-CREATE TABLE IF NOT EXISTS users (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  email text UNIQUE NOT NULL,
-  name text,
-  image text,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
+-- 2026-09-07: the CREATE TABLE for public.users was removed.
+-- auth.users is the single user table. public.users came from a starter
+-- scaffold, held 29 rows that never logged in, and was retired. Recreating
+-- it here would restore the second user population.
+
 
 -- Create wallets table
 CREATE TABLE IF NOT EXISTS wallets (
